@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'presentation/characters/screens/character_list_screen.dart';
-import 'presentation/clans/screens/clan_list_screen.dart';
+import 'presentation/characters/character_list_screen.dart';
+import 'presentation/clans/clan_list_screen.dart'; 
+import 'package:tu_app/theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -8,19 +9,28 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Naruto App',
-      theme: ThemeData(primarySwatch: Colors.orange),
+      title: 'Naruto App', 
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: DefaultTabController(
-        // Eliminamos const de aquí
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Naruto Universe'),
-            bottom: TabBar(
-              tabs: [const Tab(text: 'Characters'), const Tab(text: 'Clans')],
+            title: Text('Naruto Universe', style: AppStyles.titleLarge), 
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Characters'),
+                Tab(text: 'Clans'),
+              ],
             ),
           ),
-          body: TabBarView(children: [CharacterListScreen(), ClanListScreen()]),
+          body: const TabBarView(
+            children: [
+              CharacterListScreen(),
+              ClanListScreen(), 
+            ],
+          ),
         ),
       ),
     );
