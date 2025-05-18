@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:naruto_app/data/models/clan.dart';
 
 class ClanService {
-  final String baseUrl = 'https://api-dattebayo.vercel.app/api/v1';
+  final String baseUrl = 'https://dattebayo-api.onrender.com/clans';
 
   Future<List<ClanModel>> fetchClans({int limit = 10, int offset = 0}) async {
     final response = await http.get(

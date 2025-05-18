@@ -4,6 +4,10 @@ import 'presentation/clans/screens/clan_list_screen.dart';
 import 'package:naruto_app/theme/app_theme.dart';
 import 'package:naruto_app/theme/app_styles.dart';
 
+void main() {
+  runApp(const MyApp());
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -26,7 +30,8 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
-          body: const TabBarView(
+          body: TabBarView(
+            // Removed const here
             children: [
               CharacterListScreen(),
               ClanListScreen(),
