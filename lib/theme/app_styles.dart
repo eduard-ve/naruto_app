@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tu_app/theme/app_colors.dart'; 
+import 'package:naruto_app/theme/app_colors.dart'; 
 
 class AppStyles {
   static const TextStyle titleLarge = TextStyle(

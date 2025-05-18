@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/models/clan.dart';
-import '../../../../data/services/clan_api_service.dart';
+import 'package:naruto_app/data/services/clan_api_service.dart';
 
 class ClanListScreen extends StatelessWidget {
   const ClanListScreen({super.key}); // <--- agrega esto
@@ -28,7 +28,8 @@ class ClanListScreen extends StatelessWidget {
               final clan = clans[index];
               return ListTile(
                 leading: CircleAvatar(
-                  child: Text(clan.name[0]), // Muestra la primera letra del nombre
+                  child:
+                      Text(clan.name[0]), // Muestra la primera letra del nombre
                 ),
                 title: Text(clan.name),
                 subtitle: Text(clan.description),
