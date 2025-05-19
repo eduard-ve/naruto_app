@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:naruto_app/data/models/clan.dart';
-import 'package:logger/logger.dart'; // Importa el paquete logger
+import 'package:logger/logger.dart';
 
 class ClanService {
   final String baseUrl = 'https://dattebayo-api.onrender.com/clans';
 
-  Future<List<ClanModel>> fetchClans() async {
-    final url = Uri.parse(baseUrl); // <-- Eliminado ?limit=10&offset=0
+  Future<List<ClanModel>> fetchAllClans() async {
+    final url = Uri.parse('$baseUrl?limit=1000'); // Ajusta el límite según sea necesario
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

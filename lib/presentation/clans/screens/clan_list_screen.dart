@@ -40,7 +40,7 @@ class ClanListScreen extends StatelessWidget {
         title: const Text('Lista de Clanes'),
       ),
       body: FutureBuilder<List<ClanModel>>(
-        future: ClanService().fetchClans(), // <-- ya no usa paginación
+        future: ClanService().fetchAllClans(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
