@@ -11,46 +11,77 @@ class CharacterListScreen extends StatefulWidget {
 }
 
 class _CharacterListScreenState extends State<CharacterListScreen> {
-  // Instancia del servicio para obtener los datos de los personajes
   final CharacterService _characterService = CharacterService();
-  // Lista para almacenar los personajes obtenidos
-  List<Character> _characters = [];
-  // Estado para indicar si se están cargando los datos
+  final List<Character> _characters = [];
+  final ScrollController _scrollController = ScrollController();
+
+  int _currentPage = 1;
   bool _isLoading = true;
-  // Estado para almacenar cualquier error que ocurra durante la carga de datos
+  bool _isFetchingMore = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    // Llama a la función para cargar los personajes al inicializar el estado del widget
     _loadCharacters();
+    _scrollController.addListener(_onScroll);
   }
 
-  // Función asíncrona para cargar los personajes desde el servicio
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isFetchingMore &&
+        !_isLoading) {
+      _loadMoreCharacters();
+    }
+  }
+
   Future<void> _loadCharacters() async {
     try {
       setState(() {
-        _isLoading =
-            true; // Establece el estado de carga a verdadero antes de iniciar la carga
-        _error = null; // Limpia cualquier error previo
+        _isLoading = true;
+        _error = null;
       });
 
-      // Llama al servicio para obtener la lista de personajes
-      final characters = await _characterService.getCharacters();
+      final characters = await _characterService.getCharacters(page: _currentPage);
 
       setState(() {
-        _characters =
-            characters; // Actualiza la lista de personajes con los datos obtenidos
-        _isLoading =
-            false; // Establece el estado de carga a falso después de cargar los datos
+        _characters.addAll(characters);
+        _isLoading = false;
       });
     } catch (e) {
-      // Captura cualquier error que ocurra durante la carga de datos
       setState(() {
-        _error = e.toString(); // Almacena el mensaje de error
-        _isLoading =
-            false; // Establece el estado de carga a falso en caso de error
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadMoreCharacters() async {
+    setState(() {
+      _isFetchingMore = true;
+    });
+
+    try {
+      final nextPage = _currentPage + 1;
+      final moreCharacters = await _characterService.getCharacters(page: nextPage);
+
+      if (moreCharacters.isNotEmpty) {
+        setState(() {
+          _currentPage = nextPage;
+          _characters.addAll(moreCharacters);
+        });
+      }
+    } catch (e) {
+      // Error silencioso o mostrar mensaje si se desea
+    } finally {
+      setState(() {
+        _isFetchingMore = false;
       });
     }
   }
@@ -66,31 +97,30 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
-      // Llama a la función _buildBody() para construir el cuerpo de la pantalla basado en el estado
       body: _buildBody(),
     );
   }
 
-  // Función para construir el cuerpo de la pantalla basado en el estado de carga y error
   Widget _buildBody() {
-    if (_isLoading) {
-      // Muestra un indicador de carga si los datos se están cargando
+    if (_isLoading && _characters.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
 
     if (_error != null) {
-      // Muestra un mensaje de error si ocurre un error durante la carga de datos
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Error: $_error'), // Muestra el mensaje de error
+            Text('Error: $_error'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed:
-                  _loadCharacters, // Botón para reintentar la carga de datos
+              onPressed: () {
+                _currentPage = 1;
+                _characters.clear();
+                _loadCharacters();
+              },
               child: const Text('Reintentar'),
             ),
           ],
@@ -99,29 +129,34 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     }
 
     if (_characters.isEmpty) {
-      // Muestra un mensaje si no se encontraron personajes
       return const Center(
         child: Text('No se encontraron personajes'),
       );
     }
 
-    // Muestra la lista de personajes si los datos se cargaron correctamente
     return RefreshIndicator(
-      onRefresh:
-          _loadCharacters, // Permite recargar la lista deslizando hacia abajo
+      onRefresh: () async {
+        _currentPage = 1;
+        _characters.clear();
+        await _loadCharacters();
+      },
       child: GridView.builder(
+        controller: _scrollController,
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // Número de columnas en la cuadrícula
-          childAspectRatio:
-              0.75, // Relación de aspecto de cada elemento de la cuadrícula
-          crossAxisSpacing: 16, // Espacio entre columnas
-          mainAxisSpacing: 16, // Espacio entre filas
+          crossAxisCount: 3,
+          childAspectRatio: 0.75,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
         ),
-        itemCount: _characters.length, // Número de personajes en la lista
+        itemCount: _characters.length + (_isFetchingMore ? 1 : 0),
         itemBuilder: (context, index) {
-          // Construye una tarjeta de personaje para cada personaje en la lista
-          return CharacterCard(character: _characters[index]);
+          if (index < _characters.length) {
+            return CharacterCard(character: _characters[index]);
+          } else {
+            // Muestra indicador de carga al final mientras carga más
+            return const Center(child: CircularProgressIndicator());
+          }
         },
       ),
     );
