@@ -24,7 +24,6 @@ class ClanListScreen extends StatelessWidget {
     logger.i('Body: ${response.body}');
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
-      // Si la respuesta es una lista de personajes:
       final List<dynamic> data =
           jsonBody is List ? jsonBody : jsonBody['characters'];
       return data.map<String>((char) => char['name'] as String).toList();
@@ -41,7 +40,7 @@ class ClanListScreen extends StatelessWidget {
         title: const Text('Lista de Clanes'),
       ),
       body: FutureBuilder<List<ClanModel>>(
-        future: ClanService().fetchClans(),
+        future: ClanService().fetchClans(), // <-- ya no usa paginación
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
