@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
-// Importa los modelos y servicios necesarios para obtener los datos de los clanes
 import 'package:naruto_app/data/models/clan.dart';
 import 'package:naruto_app/data/services/clan_api_service.dart';
-// Importa la pantalla de detalles del clan
 import 'package:naruto_app/presentation/clans/screens/clan_detail_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:logger/logger.dart';
 
 // Este widget muestra la lista de clanes
 class ClanListScreen extends StatelessWidget {
   const ClanListScreen({super.key});
+
+  // Logger instance
+  static final logger = Logger();
+
+  // Función para obtener los nombres de los personajes por sus IDs usando la API correcta
+  Future<List<String>> fetchCharacterNames(List<int> ids) async {
+    if (ids.isEmpty) return [];
+    final idsString = ids.join(',');
+    final url = 'https://dattebayo-api.onrender.com/characters/$idsString';
+    logger.i('GET $url');
+    final response = await http.get(Uri.parse(url));
+    logger.i('Status: ${response.statusCode}');
+    logger.i('Body: ${response.body}');
+    if (response.statusCode == 200) {
+      final jsonBody = json.decode(response.body);
+      // Si la respuesta es una lista de personajes:
+      final List<dynamic> data =
+          jsonBody is List ? jsonBody : jsonBody['characters'];
+      return data.map<String>((char) => char['name'] as String).toList();
+    } else {
+      logger.e('Error al cargar personajes: ${response.body}');
+      throw Exception('Error al cargar personajes');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,43 +41,44 @@ class ClanListScreen extends StatelessWidget {
         title: const Text('Lista de Clanes'),
       ),
       body: FutureBuilder<List<ClanModel>>(
-        // Usa FutureBuilder para manejar la asincronía
-        future: ClanService()
-            .fetchClans(), // Llama al servicio para obtener la lista de clanes
+        future: ClanService().fetchClans(),
         builder: (context, snapshot) {
-          // Muestra un indicador de carga mientras se obtienen los datos
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          }
-          // Muestra un mensaje de error si ocurre algún problema al obtener los datos
-          else if (snapshot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          // Muestra un mensaje si no hay datos disponibles
-          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No hay clanes disponibles'));
           }
 
-          // Si se obtienen los datos correctamente, se construye la lista
           final clans = snapshot.data!;
 
           return ListView.builder(
-            itemCount: clans.length, // Número de clanes
+            itemCount: clans.length,
             itemBuilder: (context, index) {
-              final clan = clans[index]; // Obtiene el clan actual
+              final clan = clans[index];
 
               return ListTile(
                 leading: CircleAvatar(
-                  child: Text(clan
-                      .name[0]), // Muestra la primera letra del nombre del clan
+                  child: Text(clan.name[0]),
                 ),
                 title: Text(clan.name),
-                subtitle: Text(clan.description ??
-                    'Sin descripción'), // Muestra la descripción del clan
-                trailing: Text(
-                    'Población: ${clan.population}'), // Muestra la población del clan
+                subtitle: FutureBuilder<List<String>>(
+                  future: fetchCharacterNames(clan.characters),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('Cargando personajes...');
+                    } else if (snapshot.hasError) {
+                      return const Text('Error al cargar personajes');
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Text('Sin personajes');
+                    }
+                    final names = snapshot.data!;
+                    return Text(
+                        'ID: ${clan.id}\nPersonajes: ${names.join(', ')}');
+                  },
+                ),
                 onTap: () {
-                  // Navega a la pantalla de detalles del clan al tocarlo
                   Navigator.push(
                     context,
                     MaterialPageRoute(
