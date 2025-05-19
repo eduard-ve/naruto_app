@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^6.1.0
+  responsive_framework: ^1.1.1
+  responsive_builder: ^0.7.0
+  flutter_screenutil: ^5.9.0
   cupertino_icons: ^1.0.2
   http: ^1.1.0
   logger: ^2.5.0
@@ -19,4 +23,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
+  assets:
+    - assets/images/naruto.jpg
   uses-material-design: true
+

@@ -1,9 +1,53 @@
 import 'package:flutter/material.dart';
-// Importa las pantallas que vamos a usar
 import 'package:naruto_app/presentation/characters/screens/character_list_screen.dart';
 import 'package:naruto_app/presentation/clans/screens/clan_list_screen.dart';
 import 'package:naruto_app/theme/app_theme.dart';
-import 'package:naruto_app/theme/app_styles.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:naruto_app/presentation/welcome/welcome_screen.dart';
+
+class HomeTabs extends StatelessWidget {
+  const HomeTabs({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false, // <-- Esto quita la flecha de back
+          title: Text(
+            'Universo Naruto',
+            style: GoogleFonts.bebasNeue(
+              color: Colors.orangeAccent,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: Offset(2, 2),
+                ),
+              ],
+            ),
+          ),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Personajes'),
+              Tab(text: 'Clanes'),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            CharacterListScreen(),
+            ClanListScreen(),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 void main() {
   runApp(const MyApp());
@@ -15,34 +59,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Naruto App', // Título de la aplicación
-      theme: AppTheme.lightTheme, // Tema claro de la aplicación
-      darkTheme: AppTheme.darkTheme, // Tema oscuro de la aplicación
-      themeMode: ThemeMode.system, // Usa el tema del sistema (claro u oscuro)
-      home: DefaultTabController(
-        length: 2, // Número de pestañas
-        child: Scaffold(
-          appBar: AppBar(
-            // Remueve const de aquí
-            title: Text('Naruto Universe',
-                style: AppStyles.titleLarge), // Título de la AppBar
-            bottom: const TabBar(
-              // Barra de pestañas en la parte inferior de la AppBar
-              tabs: [
-                Tab(text: 'Characters'), // Pestaña de Personajes
-                Tab(text: 'Clans'), // Pestaña de Clanes
-              ],
-            ),
-          ),
-          body: TabBarView(
-            // Muestra el contenido de cada pestaña
-            children: [
-              CharacterListScreen(), // Pantalla de la lista de personajes
-              ClanListScreen(), // Pantalla de la lista de clanes
-            ],
-          ),
-        ),
-      ),
+      title: 'Naruto App',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomeScreen(),
+        '/home': (context) => const HomeTabs(),
+      },
     );
   }
 }

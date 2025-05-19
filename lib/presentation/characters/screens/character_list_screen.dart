@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:naruto_app/data/services/character_service.dart';
 import 'package:naruto_app/data/models/character.dart';
 import 'package:naruto_app/presentation/characters/widgets/character_card.dart';
+import 'package:google_fonts/google_fonts.dart'; // Importa Google Fonts
 
 class CharacterListScreen extends StatefulWidget {
   const CharacterListScreen({super.key});
@@ -34,7 +35,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
         !_isFetchingMore &&
         !_isLoading) {
       _loadMoreCharacters();
@@ -48,7 +50,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         _error = null;
       });
 
-      final characters = await _characterService.getCharacters(page: _currentPage);
+      final characters =
+          await _characterService.getCharacters(page: _currentPage);
 
       setState(() {
         _characters.addAll(characters);
@@ -69,7 +72,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
 
     try {
       final nextPage = _currentPage + 1;
-      final moreCharacters = await _characterService.getCharacters(page: nextPage);
+      final moreCharacters =
+          await _characterService.getCharacters(page: nextPage);
 
       if (moreCharacters.isNotEmpty) {
         setState(() {
@@ -90,9 +94,21 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Personajes - Lista',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          'Personajes',
+          style: GoogleFonts.bebasNeue(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            shadows: [
+              Shadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 4,
+                offset: Offset(2, 2),
+              ),
+            ],
+          ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,

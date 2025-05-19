@@ -5,6 +5,7 @@ import 'package:naruto_app/presentation/clans/screens/clan_detail_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:logger/logger.dart';
+import 'package:google_fonts/google_fonts.dart'; // Importa Google Fonts
 
 // Este widget muestra la lista de clanes
 class ClanListScreen extends StatelessWidget {
@@ -37,7 +38,24 @@ class ClanListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Clanes'),
+        title: Text(
+          'Lista de Clanes',
+          style: GoogleFonts.bebasNeue(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            shadows: [
+              Shadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 4,
+                offset: Offset(2, 2),
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<ClanModel>>(
         future: ClanService().fetchAllClans(),
@@ -61,7 +79,13 @@ class ClanListScreen extends StatelessWidget {
                 leading: CircleAvatar(
                   child: Text(clan.name[0]),
                 ),
-                title: Text(clan.name),
+                title: Text(
+                  clan.name,
+                  style: GoogleFonts.bebasNeue(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
                 subtitle: FutureBuilder<List<String>>(
                   future: fetchCharacterNames(clan.characters),
                   builder: (context, snapshot) {
